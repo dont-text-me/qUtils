@@ -13,6 +13,7 @@ private val shrinker =
         listOf(num + 0.5, num - 0.5, num + 0.5.i, num - 0.5.i)
     }
 
+@Suppress("unused")
 val arbitraryComplex =
     arbitrary(shrinker) {
         val real = Arb.double().bind()

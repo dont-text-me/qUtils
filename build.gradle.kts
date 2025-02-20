@@ -12,6 +12,8 @@ repositories { mavenCentral() }
 dependencies {
   testImplementation(kotlin("test"))
   testImplementation("io.strikt:strikt-core:0.35.1")
+  testImplementation("io.kotest:kotest-runner-junit5-jvm:6.0.0.M2")
+  testImplementation("io.kotest:kotest-property:6.0.0.M2") // property-based testing
 }
 
 tasks.test { useJUnitPlatform() }

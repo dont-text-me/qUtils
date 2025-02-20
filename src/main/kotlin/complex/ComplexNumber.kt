@@ -28,15 +28,13 @@ sealed class ComplexNumber {
         val Number.i
             get() = ComplexNumberCart(0, this)
 
-        operator fun<T: Number> T.plus(other: ComplexNumber) = other + this
+        operator fun <T : Number> T.plus(other: ComplexNumber) = other + this
 
         // useful constants
         val ZERO = ComplexNumberCart(0, 0)
         val ONE = ComplexNumberCart(0, 1)
         val I = ComplexNumberCart(0, 1)
         val PI = ComplexNumberCart(kotlin.math.PI, 0)
-
-
     }
 
     fun toPolar(): ComplexNumberPolar =
@@ -61,6 +59,7 @@ sealed class ComplexNumber {
                 ComplexNumberCart(real, imaginary)
             }
         }
+
     override fun equals(other: Any?) =
         when (other) {
             is ComplexNumber ->
@@ -70,7 +69,9 @@ sealed class ComplexNumber {
             is Number -> this.toCartesian().real == other && this.toCartesian().imaginary == 0.0
             else -> false
         }
+
     override fun hashCode() = javaClass.hashCode()
+
     // =============== Operator functions ============================
     // - Addition
     operator fun plus(other: ComplexNumber) =
@@ -102,6 +103,7 @@ sealed class ComplexNumber {
                 (it.real * otherCart.imaginary) + (otherCart.real * it.imaginary),
             )
         }
+
     // - Division
     operator fun div(other: ComplexNumber) = this * other.inverse()
 
@@ -128,6 +130,7 @@ sealed class ComplexNumber {
             is ComplexNumberCart -> ComplexNumberCart(this.real, -this.imaginary)
             is ComplexNumberPolar -> ComplexNumberPolar(this.r, -this.theta)
         }
+
     /**
      * Returns the value of `1 / z` for complex number `z`
      * */

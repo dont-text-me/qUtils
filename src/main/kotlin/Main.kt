@@ -1,6 +1,6 @@
 import complex.ComplexNumber.Companion.i
-import complex.ComplexNumber.Companion.plus
 import complex.ComplexNumber.Companion.ofR
+import complex.ComplexNumber.Companion.plus
 import complex.ComplexNumber.Companion.withTheta
 
 fun main() {

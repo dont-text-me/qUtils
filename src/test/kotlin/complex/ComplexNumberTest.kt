@@ -1,5 +1,5 @@
-import complex.ComplexNumberCart
-import complex.ComplexNumberPolar
+package complex
+
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import strikt.api.expect

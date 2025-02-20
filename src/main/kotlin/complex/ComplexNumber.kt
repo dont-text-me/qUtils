@@ -8,6 +8,7 @@ import kotlin.math.sqrt
 
 sealed class ComplexNumber {
     companion object {
+        // alternative constructors and convenience methods
         @JvmInline
         value class ComplexNumberCartBuilder(val real: Number)
 
@@ -21,6 +22,21 @@ sealed class ComplexNumber {
         infix fun ComplexNumberCartBuilder.withImaginary(imaginary: Number) = ComplexNumberCart(this.real, imaginary)
 
         infix fun ComplexNumberPolarBuilder.withTheta(theta: Number) = ComplexNumberPolar(this.r, theta)
+
+        // Credit to Kmath: provide ability to create cartesian numbers using the a + b.i synthax
+
+        val Number.i
+            get() = ComplexNumberCart(0, this)
+
+        operator fun<T: Number> T.plus(other: ComplexNumber) = other + this
+
+        // useful constants
+        val ZERO = ComplexNumberCart(0, 0)
+        val ONE = ComplexNumberCart(0, 1)
+        val I = ComplexNumberCart(0, 1)
+        val PI = ComplexNumberCart(kotlin.math.PI, 0)
+
+
     }
 
     fun toPolar(): ComplexNumberPolar =
@@ -45,14 +61,6 @@ sealed class ComplexNumber {
                 ComplexNumberCart(real, imaginary)
             }
         }
-
-    operator fun plus(other: ComplexNumber) =
-        this.toCartesian().let {
-            ComplexNumberCart(it.real + other.toCartesian().real, it.imaginary + other.toCartesian().imaginary)
-        }
-
-    operator fun plus(other: Number) = this.toCartesian().let { ComplexNumberCart(it.real + other.toDouble(), it.imaginary) }
-
     override fun equals(other: Any?) =
         when (other) {
             is ComplexNumber ->
@@ -62,12 +70,26 @@ sealed class ComplexNumber {
             is Number -> this.toCartesian().real == other && this.toCartesian().imaginary == 0.0
             else -> false
         }
+    override fun hashCode() = javaClass.hashCode()
+    // =============== Operator functions ============================
+    // - Addition
+    operator fun plus(other: ComplexNumber) =
+        this.toCartesian().let {
+            ComplexNumberCart(it.real + other.toCartesian().real, it.imaginary + other.toCartesian().imaginary)
+        }
 
+    operator fun plus(other: Number) = this.toCartesian().let { ComplexNumberCart(it.real + other.toDouble(), it.imaginary) }
+
+    // - Negation
     operator fun unaryMinus() = this.toCartesian().let { ComplexNumberCart(-it.real, -it.imaginary) }
+
+    // - Subtraction
 
     operator fun minus(other: ComplexNumber) = this + (-other)
 
     operator fun minus(other: Number) = this + (-(other.toDouble()))
+
+    // - Multiplication
 
     operator fun times(other: Number) =
         this.toCartesian().let { ComplexNumberCart(it.real * (other.toDouble()), it.imaginary * other.toDouble()) }
@@ -80,20 +102,7 @@ sealed class ComplexNumber {
                 (it.real * otherCart.imaginary) + (otherCart.real * it.imaginary),
             )
         }
-
-    fun modSquared() = this.toPolar().r
-
-    fun conjugate() =
-        when (this) {
-            is ComplexNumberCart -> ComplexNumberCart(this.real, -this.imaginary)
-            is ComplexNumberPolar -> ComplexNumberPolar(this.r, -this.theta)
-        }
-
-    fun inverse() =
-        this.conjugate().toCartesian().let {
-            ComplexNumberCart(it.real / it.modSquared(), -it.imaginary / it.modSquared())
-        }
-
+    // - Division
     operator fun div(other: ComplexNumber) = this * other.inverse()
 
     operator fun div(other: Number) =
@@ -101,7 +110,31 @@ sealed class ComplexNumber {
             ComplexNumberCart(it.real / other.toDouble(), it.imaginary / other.toDouble())
         }
 
-    override fun hashCode() = javaClass.hashCode()
+    // ================================================================================
+
+    /**
+     * Returns the "length" of the number
+     * */
+    fun modSquared() = this.toPolar().r
+
+    /**
+     * Return the complex conjugate of the number.
+     *
+     *  - For polar representations, negate theta
+     *  - For cartesian representations, negate imaginary part
+     * */
+    fun conjugate() =
+        when (this) {
+            is ComplexNumberCart -> ComplexNumberCart(this.real, -this.imaginary)
+            is ComplexNumberPolar -> ComplexNumberPolar(this.r, -this.theta)
+        }
+    /**
+     * Returns the value of `1 / z` for complex number `z`
+     * */
+    fun inverse() =
+        this.conjugate().toCartesian().let {
+            ComplexNumberCart(it.real / it.modSquared(), -it.imaginary / it.modSquared())
+        }
 }
 
 data class ComplexNumberCart(
@@ -114,7 +147,7 @@ data class ComplexNumberCart(
         when {
             this.imaginary > 0 -> "$real + ${imaginary}i"
             this.imaginary <= 0 -> "$real - ${-imaginary}i"
-            this.imaginary.equals(0.0) -> "$real"
+            this.imaginary in listOf(0.0, -0.0, Double.NaN) -> "$real"
             else -> throw IllegalArgumentException("Could not process complex numbers with components $real and $imaginary")
         }
 }
